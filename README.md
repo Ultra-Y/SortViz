@@ -10,7 +10,8 @@
 
 - [x] 冒泡排序步骤生成器（核心逻辑与界面分离，可独立测试）
 - [x] 冒泡排序动画演示（高亮比较/交换、实时统计次数、配色与调速）
-- [ ] 插入排序、选择排序（本周末将开始做插入排序（好慢））
+- [x] 插入排序
+- [ ] 选择排序
 - [ ] 多算法对比展示
 
 ## 环境与运行
@@ -39,7 +40,32 @@ SortViz/
 每种排序实现为一个生成器函数，逐条 yield `("compare", i, j)`、`("swap", i, j)`、`("done",)` 事件。测试层回放事件验证正确性，动画层把事件翻译成画面——核心逻辑与界面完全分离。
 
 ## 课程知识与分析
-
+插入排序已解决：
+原理：
+def insertion_steps(arr):
+    sort = []
+    for item in arr:
+        pos = len(sort)
+        for i in range(len(sort)):
+            if sort[i] > item:
+                pos = i
+                break
+        sort.insert(pos, item)
+    return sort
+演示程序：
+def insertion_sort_steps(arr):
+    a = list(arr)                     # 复制输入，保护原列表
+    n = len(a)
+    for j in range(n):
+        while j > 0:
+            yield ("compare", j - 1, j)     # 传下标，不传值
+            if a[j - 1] > a[j]:
+                a[j - 1], a[j] = a[j], a[j - 1]
+                yield ("swap", j - 1, j)    # 传下标，不传值
+                j = j - 1
+            else:
+                break
+    yield ("done",)
 （待补充：冒泡/插入/选择排序的比较次数分析，n(n-1)/2 与实测对照，选型理由）
 
 ## 测试与结果
@@ -61,3 +87,11 @@ SortViz/
 ## 许可证
 
 MIT License，见 LICENSE 文件。
+
+##功能增加
+10.30 
+-增加了插入排序，在终端打开可以从冒泡和插入选择其一作为排序依据
+-增加了计时器，方便看用时
+-增加了输入功能，可以手动输入数据，演示时可不依靠内部数据
+-增加了加速功能，方便在输入大数组时节省时间
+-优化了柱子的高度，现在柱子之间的高度差更大，对比效果更强

@@ -10,6 +10,9 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from bubble_steps import bubble_sort_steps
+from insertion_steps import insertion_steps
+
+GENERATORS = [bubble_sort_steps, insertion_steps]
 
 
 def replay(step_generator, case):
@@ -43,10 +46,12 @@ CASES = [
 
 
 def test_correctness():
-    for case in CASES:
-        result, _, _ = replay(bubble_sort_steps(case), case)
-        assert result == sorted(case), f"排序错误: {case} -> {result}"
-    print("正确性测试通过（含空表、单元素、重复、逆序、负数等边界）")
+    for gen in GENERATORS:
+        for case in CASES:
+            result, _, _ = replay(gen(case), case)
+            assert result == sorted(case), \
+                f"{gen.__name__} 排序错误: {case} -> {result}"
+    print("正确性测试通过（冒泡 + 插入，含空表、单元素、重复、逆序、负数等边界）")
 
 
 def test_bubble_compare_count():
@@ -56,14 +61,15 @@ def test_bubble_compare_count():
         _, compare, _ = replay(bubble_sort_steps(case), case)
         expected = n * (n - 1) // 2
         assert compare == expected, f"n={n} 比较次数应为 {expected}，实际 {compare}"
-    print("比较次数测试通过：与理论值 n(n-1)/2 一致")
+    print("冒泡比较次数测试通过：与理论值 n(n-1)/2 一致")
 
 
 def test_no_modify_input():
-    case = [3, 1, 2]
-    list(bubble_sort_steps(case))
-    assert case == [3, 1, 2], "生成器不应修改传入的列表"
-    print("输入保护测试通过")
+    for gen in GENERATORS:
+        case = [3, 1, 2]
+        list(gen(case))
+        assert case == [3, 1, 2], f"{gen.__name__} 不应修改传入的列表"
+    print("输入保护测试通过（两种算法均不修改原列表）")
 
 
 if __name__ == "__main__":
